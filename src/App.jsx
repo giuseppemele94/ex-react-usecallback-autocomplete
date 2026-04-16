@@ -1,5 +1,15 @@
-import { useEffect, useState , useMemo} from 'react'
+import { useEffect, useState , useCallback} from 'react'
 
+//funzione di debounce generica 
+function debounce (callback, delay) {
+  let timer;
+  return(value) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      callback(value);
+    }, delay); 
+  }
+}
 
 
 function App() {
@@ -7,12 +17,16 @@ function App() {
   const [search, setSearch] = useState("");
   const [suggestions, setSuggestions] = useState([]);
 
-  const loadProducts = async (search) => {
+  //la chiamata non parte subito ma dopo 500ms
+  const loadProducts = useCallback(debounce(async (search) => {
     // se stringa vuota ritorna array vuoto
     if (!search.trim()) {
       setSuggestions([]);
       return;
     }
+
+    //test per chaiamta api ad ogni pressione del tasto 
+    console.log("Chiamata API con search =", search);
 
     try{
     const result = await fetch(`http://localhost:3333/products?search=${search}`);
@@ -21,18 +35,16 @@ function App() {
     }catch(error){
       console.error(error); 
     }
-  };
+  },500), []);
 
+
+ 
   //effettua la chiamata ogni volta che cambia la query
   useEffect(() => {
     loadProducts(search);
   }, [search]);
 
-  // const filteredProducts = useMemo(() => {
-  //   if (!search.trim()) return [];
-  //   return suggestions;
-  // }, [suggestions, search]);
-
+  
   return (
     <>
       <div className="search-box">

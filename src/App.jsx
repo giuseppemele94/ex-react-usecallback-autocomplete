@@ -52,6 +52,8 @@ const fetchProductDetail = async (id) => {
     const result = await fetch(`http://localhost:3333/products/${id}`);
     const data = await result.json();
     setSelectedProduct(data);
+    setSearch("");
+    setSuggestions([]);
     console.log(data);
     }catch(error){
       console.error(error); 

@@ -16,6 +16,7 @@ function App() {
 
   const [search, setSearch] = useState("");
   const [suggestions, setSuggestions] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null); 
 
   //la chiamata non parte subito ma dopo 500ms
   const loadProducts = useCallback(debounce(async (search) => {
@@ -45,6 +46,18 @@ function App() {
   }, [search]);
 
   
+//funzione che al click sul paragrafo della ricerca , carica il prodotto
+const fetchProductDetail = async (id) => {
+  try{
+    const result = await fetch(`http://localhost:3333/products/${id}`);
+    const data = await result.json();
+    setSelectedProduct(data);
+    console.log(data);
+    }catch(error){
+      console.error(error); 
+    }
+}
+
   return (
     <>
       <div className="search-box">
@@ -58,9 +71,17 @@ function App() {
         {search.trim() !== "" && suggestions.length > 0 && (
           <ul className="suggestions-dropdown">
             {suggestions.map((p) => (
-              <li key={p.id}className="suggestion-item">{p.name}</li>
+              <li key={p.id} onClick ={() => fetchProductDetail(p.id)} className="suggestion-item">{p.name}</li>
             ))}
           </ul>
+        )}
+        {selectedProduct && (
+          <div>
+            <h2>{selectedProduct.name}</h2>
+            <img src= {selectedProduct.image}/>
+            <p>{selectedProduct.description}</p>
+            <p>Prezzo: {selectedProduct.price}$ </p>
+          </div>
         )}
       </div>
 
